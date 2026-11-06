@@ -7,6 +7,7 @@ flagship: true
 category: "Flagship research · Bachelor’s thesis"
 technologies: "PyTorch · 3D CNNs · CBCT · Volumetric inference"
 summary: "Adapting IDDNet to a new CBCT domain: composite losses, patch-based inference and a quantitative comparison with RED-CNN."
+description: "Adapting IDDNet to a new CBCT domain: composite losses, patch-based inference and a quantitative comparison with RED-CNN."
 math: true
 ---
 
@@ -66,16 +67,16 @@ Two fine-tuned models are compared with the unadapted pretrained network and RED
 
 The experiments differ in **data quantity, duration and scheduling as well as loss**. Their comparison should not be interpreted as a controlled ablation isolating the effect of the composite objective.
 
-For a predicted volume \(\hat y\) and reference \(y\), MSE penalizes large voxel errors quadratically:
+For a predicted volume $$\hat y$$ and reference $$y$$, MSE penalizes large voxel errors quadratically:
 
 $$L_{\mathrm{MSE}}=\frac1N\sum_{i=1}^{N}(\hat y_i-y_i)^2.$$
 
 The custom objective combines complementary terms:
 
 - **L1 fidelity:** mean absolute voxel error, less dominated by large isolated deviations than MSE.
-- **Structural loss:** \(1-\operatorname{SSIM}(\hat y,y)\), encouraging local luminance, contrast and structural agreement.
+- **Structural loss:** $$1-\operatorname{SSIM}(\hat y,y)$$, encouraging local luminance, contrast and structural agreement.
 - **PSNR-related fidelity:** a component connected to reconstruction error; PSNR is a monotonic transform of MSE, so this is not an independent source of image-quality information.
-- **Non-negativity penalty:** \(N^{-1}\sum_i\max(0,-\hat y_i)\), discouraging negative predictions in the adopted intensity representation.
+- **Non-negativity penalty:** $$N^{-1}\sum_i\max(0,-\hat y_i)$$, discouraging negative predictions in the adopted intensity representation.
 
 The reported principal weights are **0.5 for L1, 0.3 for SSIM and 0.2 for the PSNR-related term**. The document states that the negativity term has an additional weight but does not give its numerical value in that settings paragraph. It also does not specify the implemented loss transformation of raw PSNR sufficiently to reproduce that term exactly. Consequently, no unverified coefficient or claim of a fully reproducible loss formula is introduced here.
 
@@ -97,7 +98,7 @@ Normalization is essential: simply adding overlapping predictions would amplify 
 
 ## Quantitative evaluation
 
-Evaluation uses changes in image quality relative to the noisy input. For a metric \(M\), the reported variation is \(\Delta M=M(\mathrm{denoised},\mathrm{reference})-M(\mathrm{noisy},\mathrm{reference})\). **Negative ΔMSE is better; positive ΔPSNR and ΔSSIM are better.** These variations are not absolute output PSNR or SSIM values.
+Evaluation uses changes in image quality relative to the noisy input. For a metric $$M$$, the reported variation is $$\Delta M=M(\mathrm{denoised},\mathrm{reference})-M(\mathrm{noisy},\mathrm{reference})$$. **Negative ΔMSE is better; positive ΔPSNR and ΔSSIM are better.** These variations are not absolute output PSNR or SSIM values.
 
 The thesis describes approximately 8,000 evaluation samples. Its table caption calls the set “validation”, while surrounding sections call it “test”. The values below are therefore labelled the **reported evaluation set**, avoiding an unsupported assertion about split terminology or patient-level independence.
 

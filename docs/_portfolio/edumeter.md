@@ -6,6 +6,7 @@ order: 4
 category: "Software engineering"
 technologies: "Java 17 · Jakarta REST · PostgreSQL · JUnit"
 summary: "A review-platform backend with a relational domain model, moderated publication, interchangeable persistence layers and systematic testing."
+description: "A review-platform backend with a relational domain model, moderated publication, interchangeable persistence layers and systematic testing."
 ---
 
 ## Problem and project scope

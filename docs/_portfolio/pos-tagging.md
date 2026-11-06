@@ -6,6 +6,7 @@ order: 2
 category: "Probabilistic modelling"
 technologies: "Python · NumPy · HMM · Viterbi"
 summary: "Learning a probabilistic model of grammatical sequences, with log-space decoding, unknown-word handling and an interactive Viterbi walkthrough."
+description: "Learning a probabilistic model of grammatical sequences, with log-space decoding, unknown-word handling and an interactive Viterbi walkthrough."
 math: true
 demo: viterbi
 ---
@@ -18,13 +19,13 @@ The project covers parameter estimation, rare-word normalization, additive smoot
 
 ## Model and supervised learning
 
-Words are observations and grammatical tags are hidden states. The model makes two simplifying assumptions: a tag depends only on the preceding tag, and the current word depends only on its own tag. For a sentence with words \(w_{1:n}\) and tags \(t_{1:n}\), the joint score is
+Words are observations and grammatical tags are hidden states. The model makes two simplifying assumptions: a tag depends only on the preceding tag, and the current word depends only on its own tag. For a sentence with words $$w_{1:n}$$ and tags $$t_{1:n}$$, the joint score is
 
 $$P(t_{1:n},w_{1:n}) = A_{\mathrm{START},t_1} B_{t_1}(w_1)\prod_{i=2}^n A_{t_{i-1},t_i}B_{t_i}(w_i)\,A_{t_n,\mathrm{END}}.$$
 
-Here \(A_{u,v}=P(v\mid u)\) is a transition probability and \(B_t(w)=P(w\mid t)\) an emission probability. START and END are control states, not labels assigned to words. The final END transition matters: a sequence that explains the words well may still receive a low score if its last tag rarely ends a sentence.
+Here $$A_{u,v}=P(v\mid u)$$ is a transition probability and $$B_t(w)=P(w\mid t)$$ an emission probability. START and END are control states, not labels assigned to words. The final END transition matters: a sequence that explains the words well may still receive a low score if its last tag rarely ends a sentence.
 
-The corpus is already annotated, so training uses counts rather than expectation-maximization or Baum–Welch. `train.py` makes two passes. The first counts word frequencies; the second collects emissions, adjacent-tag transitions, sentence starts and sentence endings. With additive smoothing coefficient \(\lambda\), the implementation estimates
+The corpus is already annotated, so training uses counts rather than expectation-maximization or Baum–Welch. `train.py` makes two passes. The first counts word frequencies; the second collects emissions, adjacent-tag transitions, sentence starts and sentence endings. With additive smoothing coefficient $$\lambda$$, the implementation estimates
 
 $$A_{u,v}=\frac{c(u,v)+\lambda}{c(u,\cdot)+\lambda|T|},\qquad B_t(w)=\frac{c(t,w)+\lambda}{c(t)+\lambda|V|}.$$
 
@@ -42,7 +43,7 @@ Viterbi finds the **globally highest-scoring tag sequence under the model**. It 
 
 $$D_i(t)=\log B_t(w_i)+\max_u\big[D_{i-1}(u)+\log A_{u,t}\big].$$
 
-The initial column uses START transitions. A backpointer stores the maximizing predecessor for each cell. Termination adds the END transition before choosing the final tag, after which backtracking recovers the sequence. Logarithms turn long products into sums and avoid numerical underflow. For \(n\) words and \(m\) tags, runtime is \(O(nm^2)\); the stored score and backpointer tables require \(O(nm)\) space.
+The initial column uses START transitions. A backpointer stores the maximizing predecessor for each cell. Termination adds the END transition before choosing the final tag, after which backtracking recovers the sequence. Logarithms turn long products into sums and avoid numerical underflow. For $$n$$ words and $$m$$ tags, runtime is $$O(nm^2)$$; the stored score and backpointer tables require $$O(nm)$$ space.
 
 ```python
 scores = previous_scores + log_transition_to_current + log_emission

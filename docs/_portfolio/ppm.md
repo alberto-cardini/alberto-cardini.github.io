@@ -6,6 +6,7 @@ order: 3
 category: "Image processing"
 technologies: "C++14 · CMake · GoogleTest · Matplot++"
 summary: "A C++ image-processing library exploring separable Gaussian filtering, grayscale conversion and the stages of Canny-style edge detection."
+description: "A C++ image-processing library exploring separable Gaussian filtering, grayscale conversion and the stages of Canny-style edge detection."
 math: true
 ---
 
@@ -37,17 +38,17 @@ Gaussian filtering replaces each pixel with a weighted neighbourhood average. Ne
 
 $$G_\sigma(x,y)=\frac{1}{2\pi\sigma^2}\exp\left(-\frac{x^2+y^2}{2\sigma^2}\right).$$
 
-The key computational observation is separability: the two-dimensional kernel is a product of two one-dimensional kernels. The implementation constructs a row and a column kernel and applies both to each RGB channel. For an image of \(H\times W\) pixels and kernel width \(k\), separable filtering requires \(O(HWk)\) operations rather than the \(O(HWk^2)\) cost of a dense square kernel.
+The key computational observation is separability: the two-dimensional kernel is a product of two one-dimensional kernels. The implementation constructs a row and a column kernel and applies both to each RGB channel. For an image of $$H\times W$$ pixels and kernel width $$k$$, separable filtering requires $$O(HWk)$$ operations rather than the $$O(HWk^2)$$ cost of a dense square kernel.
 
-The code derives an odd kernel size from approximately \(2\pi\sigma\), samples the Gaussian and then convolves each channel vertically and horizontally. Matrix padding uses a value obtained from the image matrix’s arithmetic average. These boundary choices affect the result near the image border.
+The code derives an odd kernel size from approximately $$2\pi\sigma$$, samples the Gaussian and then convolves each channel vertically and horizontally. Matrix padding uses a value obtained from the image matrix’s arithmetic average. These boundary choices affect the result near the image border.
 
-Increasing \(\sigma\) suppresses progressively larger-scale variation: noise is reduced, but fine structure disappears too. The viewer below uses the **actual saved repository figures**, rather than simulating Gaussian blur with a browser CSS effect. “Original” corresponds to the README’s unblurred reference; it does not invoke the constructor with a zero standard deviation.
+Increasing $$\sigma$$ suppresses progressively larger-scale variation: noise is reduced, but fine structure disappears too. The viewer below uses the **actual saved repository figures**, rather than simulating Gaussian blur with a browser CSS effect. “Original” corresponds to the README’s unblurred reference; it does not invoke the constructor with a zero standard deviation.
 
 <div class="demo" data-viewer="blur"><h3>Explore the recorded blur results</h3><label for="blur-choice">Blur setting</label> <select id="blur-choice"><option value="0">Original</option><option value="3">σ = 3</option><option value="7">σ = 7</option><option value="14">σ = 14</option></select><figure><img id="blur-image" class="stage-image" src="{{ '/assets/images/BlurSigma0.webp' | relative_url }}" alt="Original sunflower from the repository" width="260" height="260"><figcaption id="blur-caption" aria-live="polite">Original image. Compare fine petal boundaries with the blurred variants.</figcaption></figure></div>
 
 ## From intensity gradients to edges
 
-The edge detector follows a Canny-style pipeline. It first smooths the input with a Gaussian filter using \(\sigma=2\), then obtains grayscale values. Sobel filters estimate horizontal and vertical derivatives. Gradient magnitude and direction are calculated as
+The edge detector follows a Canny-style pipeline. It first smooths the input with a Gaussian filter using $$\sigma=2$$, then obtains grayscale values. Sobel filters estimate horizontal and vertical derivatives. Gradient magnitude and direction are calculated as
 
 $$M=\sqrt{G_x^2+G_y^2},\qquad \theta=\operatorname{atan2}(G_y,G_x).$$
 
