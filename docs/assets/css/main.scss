@@ -8,6 +8,9 @@
    sorted by the dependencies. Also, the first two lines of the file are required by Jekyll.
  */
 
+// Division helper for both the managed GitHub Pages compiler and modern Sass.
+@function ap-div($numerator, $denominator) { @return $numerator / $denominator; }
+
 @import
     "vendor/breakpoint/breakpoint",
 

@@ -1,6 +1,6 @@
 // Gallery Syntax
 // ==============
-@use 'sass:math';
+// Compatibility: shared ap-div helper supports the GitHub Pages Sass compiler.
 
 // Gallery
 // -------
@@ -22,7 +22,7 @@
 
   $inside       : is-inside($span);
   $from         : from($flow);
-  $line         : floor(math.div($context, $n));
+  $line         : floor(ap-div($context, $n));
   $symmetrical  : is-symmetrical($columns);
 
   $output: (

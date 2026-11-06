@@ -1,7 +1,7 @@
 /* ==========================================================================
    SHARED THEME SETTINGS
    ========================================================================== */
-@use 'sass:math';
+// Compatibility: shared ap-div helper supports the GitHub Pages Sass compiler.
 
 /* ==========================================================================
    TYPOGRAPHY
@@ -67,7 +67,7 @@ $right-sidebar-width-wide   : auto;
 $susy: (
     columns: 12,
     column-width: 120px,
-    gutters: math.div(1, 4),
+    gutters: ap-div(1, 4),
     math: fluid,
     output: float,
     gutter-position: after,

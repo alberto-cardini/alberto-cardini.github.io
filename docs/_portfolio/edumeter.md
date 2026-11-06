@@ -46,13 +46,12 @@ The code separates **business logic**, **domain models** and **persistence**. RE
 
 Persistence is exposed through DAO interfaces and factories. There are two implementations: an in-memory store for lightweight execution and tests, and PostgreSQL-backed DAOs using JDBC. The environment variable `IN_MEM_DB` selects in-memory operation when set; otherwise the application reads database connection configuration from the environment.
 
-```text
-HTTP request
-    → Jersey endpoint + authentication/authorization filters
-    → domain objects + DAO interfaces
-    → in-memory implementation OR PostgreSQL/JDBC implementation
-    → structured JSON response
-```
+| Request stage | Main responsibility |
+|---|---|
+| HTTP / Jersey | Route the request and apply authentication filters |
+| Endpoint and domain layer | Validate operations and work through DAO interfaces |
+| Persistence | Store and retrieve through in-memory or PostgreSQL implementations |
+| Response | Serialize the result or error as JSON |
 
 This architecture lets endpoint tests substitute mocks and exercise response branches without requiring a database. Database integration tests can independently validate actual SQL behaviour. Exception handlers centralize JSON error responses for invalid formats, parsing errors and application exceptions.
 

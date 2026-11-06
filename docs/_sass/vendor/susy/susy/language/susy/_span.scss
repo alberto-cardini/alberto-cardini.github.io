@@ -1,6 +1,6 @@
 // Span Syntax
 // ===========
-@use 'sass:math';
+// Compatibility: shared ap-div helper supports the GitHub Pages Sass compiler.
 
 // Span [mixin]
 // ------------
@@ -154,7 +154,7 @@
     @if $_math == static {
       $width: $span-sum * valid-column-math($_math, $_column-width);
     } @else {
-      $width: percentage(math.div($span-sum, $context));
+      $width: percentage(ap-div($span-sum, $context));
     }
   } @else {
     $width: $n;
