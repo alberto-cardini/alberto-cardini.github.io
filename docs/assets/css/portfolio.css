@@ -6,4 +6,4 @@
 @media(max-width:650px){.profile-intro>div{display:contents}.profile-intro .subtitle{grid-column:1;grid-row:1}.profile-intro>img{grid-column:2;grid-row:1}.profile-intro>div>p:not(.subtitle){grid-column:1/-1}}
 
 /* Long equations scroll within the article instead of widening mobile pages. */
-mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:4px 0}mjx-container:not([display="true"]){display:inline-block;vertical-align:middle}
+mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:8px 0}

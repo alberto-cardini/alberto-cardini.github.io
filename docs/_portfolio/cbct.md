@@ -98,7 +98,11 @@ Normalization is essential: simply adding overlapping predictions would amplify 
 
 ## Quantitative evaluation
 
-Evaluation uses changes in image quality relative to the noisy input. For a metric $$M$$, the reported variation is $$\Delta M=M(\mathrm{denoised},\mathrm{reference})-M(\mathrm{noisy},\mathrm{reference})$$. **Negative ΔMSE is better; positive ΔPSNR and ΔSSIM are better.** These variations are not absolute output PSNR or SSIM values.
+Evaluation uses changes in image quality relative to the noisy input. For a metric $$M$$, the reported variation is 
+
+$$\Delta M=M(\mathrm{denoised},\mathrm{reference})-M(\mathrm{noisy},\mathrm{reference})$$
+
+. **Negative ΔMSE is better; positive ΔPSNR and ΔSSIM are better.** These variations are not absolute output PSNR or SSIM values.
 
 The thesis describes approximately 8,000 evaluation samples. Its table caption calls the set “validation”, while surrounding sections call it “test”. The values below are therefore labelled the **reported evaluation set**, avoiding an unsupported assertion about split terminology or patient-level independence.
 
