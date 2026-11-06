@@ -1,0 +1,34 @@
+---
+permalink: /
+title: Alberto Cardini
+description: "MSc student in Computer Science at ETH Zürich, working across machine learning, medical imaging and software engineering."
+---
+<div class="profile-intro">
+<div><p class="subtitle">MSc Computer Science · ETH Zürich</p><p>I study Computer Science at <a href="https://ethz.ch/en.html">ETH Zürich</a>, with a major in Machine Intelligence and a minor in Data Management Systems. Previously, I graduated in Computer Engineering from the University of Florence with honours.</p></div>
+<img src="https://avatars.githubusercontent.com/u/51383388?v=4" alt="Alberto Cardini" width="175" height="175">
+</div>
+<p>My interests lie in <strong>machine learning, artificial intelligence, robotics and decision-making under uncertainty</strong>, with a particular interest in AI for medicine. I enjoy connecting mathematical ideas with working systems, from probabilistic sequence models to deep learning for volumetric medical images.</p>
+<p>I hope to pursue research and doctoral study at the intersection of learning, uncertainty and real-world applications.</p>
+<div class="contact-line"><a href="mailto:albycardini@gmail.com">Email</a><a href="https://github.com/alberto-cardini">GitHub</a><a href="{{ '/cv.html' | relative_url }}">Curriculum vitae</a></div>
+<div class="research-note"><strong>Research focus.</strong> My bachelor’s thesis investigates how to adapt a residual 3D U-Net to CBCT denoising, balancing reconstruction accuracy, anatomical structure and practical inference constraints.</div>
+<section id="projects"><h2>Selected projects</h2><span class="section-label">Research, algorithms and software systems</span>
+<div class="projects">
+{% assign projects = site.portfolio | sort: 'order' %}{% for project in projects %}
+<a class="project-card {% if project.flagship %}featured{% endif %}" href="{{ project.url | relative_url }}">
+<div class="card-visual {% if project.slug == 'cbct' %}diagram{% endif %}">
+{% case project.slug %}
+{% when 'cbct' %}<img src="{{ '/assets/images/denoising.svg' | relative_url }}" alt="Residual 3D U-Net denoising pipeline" width="460" height="260">
+{% when 'pos-tagging' %}<div class="tag-sequence" aria-hidden="true"><span>the<small>DET</small></span>→<span>birds<small>NOUN</small></span>→<span>sing<small>VERB</small></span></div>
+{% when 'ppm' %}<img src="{{ '/assets/images/BlurSigma0.webp' | relative_url }}" alt="Sunflower used in the PPM filtering experiments" width="300" height="155" loading="lazy">
+{% when 'edumeter' %}<div class="edu-preview" aria-hidden="true"><b>EduMeter</b><span>Course → Teaching → Review</span><span>Draft → Verification → Publication</span></div>
+{% endcase %}</div>
+<div class="card-body"><span class="eyebrow">{{ project.category }}</span><h3>{{ project.card_title }}</h3><p>{{ project.summary }}</p><span class="tech">{{ project.technologies }}</span><span class="card-link">Read the technical article →</span></div></a>{% endfor %}
+</div></section>
+<section id="experience"><h2>Research &amp; experience</h2>
+<div class="timeline"><time>Mar – May 2026</time><div><h3>Research Intern · Medical image denoising</h3><p class="institution">University–industry research collaboration · Florence</p><p>Adapted an IDDNet-based residual 3D U-Net in PyTorch for CBCT restoration. Developed data preparation, a composite training objective and Gaussian-weighted sliding-window inference for full volumes on an 8 GB GPU.</p><p>On the thesis evaluation set, the custom-loss model achieved <strong>+0.70 dB greater mean PSNR improvement</strong> and <strong>+0.016 greater mean SSIM improvement</strong> than RED-CNN. These correspond to relative gains of 14.83% and 10.46% in the improvements over noisy input.</p><a href="{{ '/projects/cbct.html' | relative_url }}">Methods, results and limitations →</a></div></div>
+<div class="timeline"><time>Sep 2024 – Jan 2026</time><div><h3>Head of Software · Red Propulsion</h3><p class="institution">University of Florence student rocketry team</p><p>Led embedded C++ development for an STM32H7 control board running FreeRTOS. Integrated BNO088, BMP585 and MS56 sensor acquisition and implemented real-time Kalman filtering.</p></div></div></section>
+<section id="education"><h2>Education</h2>
+<div class="timeline"><time>Sep 2026 – present</time><div><h3>ETH Zürich</h3><p>MSc in Computer Science · Machine Intelligence<br><span class="small">Minor: Data Management Systems · Expected September 2028</span></p></div></div>
+<div class="timeline"><time>Sep 2023 – Jul 2026</time><div><h3>University of Florence</h3><p>BSc in Computer Engineering · <strong>110/110 with honours</strong><br><span class="small">GPA: 29.4/30 · Merit- and need-based tuition waiver and regional scholarship</span></p></div></div></section>
+<section id="skills"><h2>Technical background</h2><p><strong>Programming &amp; ML:</strong> Python, C++, PyTorch, torchvision, NumPy, CNNs, residual 3D U-Nets, HMMs and Viterbi decoding.</p><p><strong>Systems &amp; data:</strong> STM32H7, FreeRTOS, Kalman filtering, HDF5, DICOM; Java, REST APIs and PostgreSQL through the EduMeter project.</p></section>
+<section id="activities"><h2>Academic activities</h2><p><strong>ELICSIR Foundation:</strong> selected for funded computer science schools BOOST 26 and FA’26 (2026), and BOOST 25 (2025). <strong>RustLab:</strong> funded attendance at the 2025 conference in Florence.</p><p>Participated in SwissHack in Zürich, VisionnAIres at Bocconi University and the EUDIS Defence Hackathon at Sapienza University of Rome in 2025. Further details are in my <a href="{{ '/cv.html' | relative_url }}">CV</a>.</p></section>

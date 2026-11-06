@@ -1,0 +1,51 @@
+locale: en-US
+title: Alberto Cardini
+title_separator: "|"
+name: Alberto Cardini
+description: "MSc Computer Science at ETH Zürich. Machine learning, decision-making under uncertainty, robotics and medical imaging."
+url: "https://alberto-cardini.github.io"
+baseurl: ""
+repository: alberto-cardini/alberto-cardini.github.io
+site_theme: default
+og_image: research.svg
+author:
+  name: Alberto Cardini
+  email: albycardini@gmail.com
+breadcrumbs: false
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  math_engine: mathjax
+include: ["_pages"]
+exclude: ["Gemfile", "Gemfile.lock", "README.md", "vendor", "node_modules"]
+collections:
+  portfolio:
+    output: true
+    permalink: /projects/:path.html
+  publications:
+    output: true
+  teaching:
+    output: true
+  talks:
+    output: true
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: single
+      author_profile: false
+      comments: false
+      share: false
+      related: false
+  - scope:
+      path: ""
+      type: portfolio
+    values:
+      layout: project
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-redirect-from
+sass:
+  style: compressed
