@@ -104,6 +104,4 @@ Useful next steps are robust Netpbm parsing, floating-point intermediates, norma
 - [Thresholding (image processing)](https://en.wikipedia.org/wiki/Thresholding_(image_processing)) — classification of image responses by thresholds.
 - [Grayscale](https://en.wikipedia.org/wiki/Grayscale) — conversion from RGB to a single intensity channel.
 
-These resources provide background on the methods discussed in this article. A standalone technical-report PDF was not available in the inspected repository.
-
 </div>

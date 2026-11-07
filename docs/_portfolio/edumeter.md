@@ -101,5 +101,7 @@ The DAO boundary provides a useful testing seam, but mocks cannot reproduce all 
 
 [Complete report sections and figures](https://github.com/alberto-cardini/EduMeter/tree/main/report) · [GitHub repository](https://github.com/alberto-cardini/EduMeter) · [Test suite](https://github.com/alberto-cardini/EduMeter/tree/main/src/test)
 
-The public repository contains the full report source, including requirements, use cases, architecture, implementation details, testing and API documentation. A compiled report PDF was not present in the inspected tree.
+The public repository contains the full report source, including requirements, use cases, architecture, implementation details, testing and API documentation. 
+
+This project was made in collaboration with Lorenzo Bellina and Carolina Cecchi.
 </div>

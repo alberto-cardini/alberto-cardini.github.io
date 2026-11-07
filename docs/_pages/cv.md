@@ -18,8 +18,8 @@ September 2023–July 2026
 
 ## Research and professional experience
 
-**Research Intern — Medical image denoising**  
-University–industry research collaboration, Florence · March–May 2026
+**Research Intern**  
+[Imaginalis](https://www.imaginalis.it), Florence · March–May 2026
 
 - Fine-tuned an IDDNet-based residual 3D U-Net in PyTorch for CBCT denoising. The thesis reports 14.83% greater mean PSNR improvement and 10.46% greater mean SSIM improvement than RED-CNN, measured as relative gains in improvement over noisy input.
 - Developed a composite objective combining L1, SSIM, a PSNR-related component and a non-negativity penalty, with cosine-annealed training on 20,000 paired subvolume samples split between training and validation.
@@ -27,8 +27,8 @@ University–industry research collaboration, Florence · March–May 2026
 
 [Research article and detailed evaluation]({{ '/projects/cbct.html' | relative_url }})
 
-**Head of Software — Red Propulsion**  
-University of Florence student rocketry team · September 2024–January 2026
+**Head of Software**  
+[Red Propulsion](https://redpropulsion.it) · September 2024–January 2026
 
 - Led embedded C++ software development for an STM32H7 rocket control board using FreeRTOS.
 - Integrated BNO088, BMP585 and MS56 sensors and implemented real-time Kalman filtering.
@@ -50,7 +50,7 @@ University of Florence student rocketry team · September 2024–January 2026
 
 ## Awards and activities
 
-- **BOOST 26 / ELICSIR Foundation**, January 2026: selected for a fully funded Computer Science Winter School in Oropa.
+- **BOOST 26 / ELICSIR Foundation**, July 2026: selected for a fully funded Computer Science Summer School in Oropa.
 - **FA’26 / ELICSIR Foundation**, January 2026: selected for a fully funded Computer Science Winter School in Venice.
 - **RustLab / Develer**, October 2025: funded ticket to the three-day international Rust conference in Florence.
 - **BOOST 25 / ELICSIR Foundation**, September 2025: selected for a fully funded Computer Science Summer School in Bologna.

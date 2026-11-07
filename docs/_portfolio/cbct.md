@@ -1,10 +1,10 @@
 ---
 title: "Medical Image Denoising with a Residual 3D U-Net"
-card_title: "Bachelor’s Thesis — Medical Image Denoising"
+card_title: "CBCT Volumetric Image Denoising based on a Residual UNet"
 slug: cbct
 order: 1
 flagship: true
-category: "Flagship research · Bachelor’s thesis"
+category: "Bachelor’s thesis"
 technologies: "PyTorch · 3D CNNs · CBCT · Volumetric inference"
 summary: "Adapting IDDNet to a new CBCT domain: composite losses, patch-based inference and a quantitative comparison with RED-CNN."
 description: "Adapting IDDNet to a new CBCT domain: composite losses, patch-based inference and a quantitative comparison with RED-CNN."
@@ -140,7 +140,5 @@ The work connects five practical contributions: adaptation of a pretrained 3D re
 <div class="resource-box" markdown="1">
 **Technical report:** the full original thesis is withheld from this public site because it contains confidential references. No private repository or dataset is linked. This article provides a standalone account of the methods and reported results.
 
-[Contact Alberto about the research](mailto:albycardini@gmail.com)
-
-Source: Alberto Cardini, *CBCT Volumetric Image Denoising based on a Residual UNet*, University of Florence, academic year 2025/2026; Chapters 2–4, particularly Tables 4.1 and 4.2.
+[Contact me for questions about the research](mailto:albycardini@gmail.com)
 </div>
