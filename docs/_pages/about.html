@@ -1,16 +1,22 @@
 ---
 permalink: /
 title: Alberto Cardini
-description: "MSc student in Computer Science at ETH Zürich, working across machine learning, medical imaging and software engineering."
+description: "MSc student in Computer Science at ETH Zürich, interested in machine learning, robotics and decision-making under uncertainty."
 ---
 <div class="profile-intro">
-<div><p class="subtitle">MSc Computer Science · ETH Zürich</p><p>I study Computer Science at <a href="https://ethz.ch/en.html">ETH Zürich</a>, with a major in Machine Intelligence and a minor in Data Management Systems. Previously, I graduated in Computer Engineering from the University of Florence with honours.</p></div>
-<img src="https://avatars.githubusercontent.com/u/51383388?v=4" alt="Alberto Cardini" width="175" height="175">
+<div>
+  <p class="subtitle">MSc Computer Science · ETH Zürich</p>
+  <p>I am currently pursuing an MSc in Computer Science at <a href="https://ethz.ch/en.html">ETH Zürich</a>, specializing in Machine Intelligence with a minor in Data Management Systems. I hold a BSc in Computer Engineering from the University of Florence, where I graduated with honours. My bachelor's thesis was supervised by <a href="https://www.micc.unifi.it/people/andrew-d-bagdanov/">Prof. Andrew D. Bagdanov</a> and <a href="https://www.researchgate.net/profile/Alice-Presenti">Dr. Alice Presenti</a>.</p>
 </div>
-<p>My interests lie in <strong>machine learning, artificial intelligence, robotics and decision-making under uncertainty</strong>, with a particular interest in AI for medicine. I enjoy connecting mathematical ideas with working systems, from probabilistic sequence models to deep learning for volumetric medical images.</p>
-<p>I hope to pursue research and doctoral study at the intersection of learning, uncertainty and real-world applications.</p>
+{% assign local_portrait = site.static_files | where: 'path', '/assets/images/profile.jpg' | first %}
+{% if local_portrait %}
+<img src="{{ '/assets/images/profile.jpg' | relative_url }}" alt="Portrait of Alberto Cardini" width="175" height="175">
+{% else %}
+<img src="https://avatars.githubusercontent.com/u/51383388?v=4" alt="Portrait of Alberto Cardini" width="175" height="175">
+{% endif %}
+</div>
+<p>My academic interests include <strong>machine learning, artificial intelligence, robotics, and decision-making under uncertainty</strong>, with a particular interest in AI for medicine. I am especially interested in probabilistic modeling, learning-based approaches, and their applications to complex real-world problems.</p>
 <div class="contact-line"><a href="mailto:albycardini@gmail.com">Email</a><a href="https://github.com/alberto-cardini">GitHub</a><a href="{{ '/cv.html' | relative_url }}">Curriculum vitae</a></div>
-<div class="research-note"><strong>Research focus.</strong> My bachelor’s thesis investigates how to adapt a residual 3D U-Net to CBCT denoising, balancing reconstruction accuracy, anatomical structure and practical inference constraints.</div>
 <section id="projects"><h2>Selected projects</h2><span class="section-label">Research, algorithms and software systems</span>
 <div class="projects">
 {% assign projects = site.portfolio | sort: 'order' %}{% for project in projects %}
