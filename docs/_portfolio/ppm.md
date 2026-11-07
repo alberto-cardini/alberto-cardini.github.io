@@ -81,9 +81,29 @@ Useful next steps are robust Netpbm parsing, floating-point intermediates, norma
 ## References and resources
 
 <div class="resource-box" markdown="1">
+
+**Project materials**
+
 [Read the full project documentation](https://github.com/alberto-cardini/PPM_Photo_Editor/blob/main/README.md)
 
 [GitHub repository](https://github.com/alberto-cardini/PPM_Photo_Editor) · [Filter implementations](https://github.com/alberto-cardini/PPM_Photo_Editor/tree/main/image_processing/src) · [Tests](https://github.com/alberto-cardini/PPM_Photo_Editor/tree/main/test)
 
-The README cites Columbia University’s *First Principles of Computer Vision* materials and explains the supplied figures. A standalone technical-report PDF was not available in the inspected repository.
+**Course materials**
+
+- Shree K. Nayar, [*First Principles of Computer Vision* — Monographs](https://fpcv.cs.columbia.edu/Monographs), Columbia University. The collection includes *Image Processing I* and *Image Processing II*.
+
+**Wikipedia — background on the implemented methods**
+
+- [Netpbm](https://en.wikipedia.org/wiki/Netpbm) — ASCII PPM (P3) and PGM (P2) image formats.
+- [Kernel (image processing)](https://en.wikipedia.org/wiki/Kernel_(image_processing)) — convolution, image filtering, and separable kernels.
+- [Gaussian blur](https://en.wikipedia.org/wiki/Gaussian_blur) — Gaussian smoothing and the role of the standard deviation.
+- [Edge detection](https://en.wikipedia.org/wiki/Edge_detection) — the problem of identifying intensity discontinuities.
+- [Image gradient](https://en.wikipedia.org/wiki/Image_gradient) — gradient magnitude and direction.
+- [Sobel operator](https://en.wikipedia.org/wiki/Sobel_operator) — estimation of horizontal and vertical image derivatives.
+- [Canny edge detector](https://en.wikipedia.org/wiki/Canny_edge_detector) — smoothing, non-maximum suppression, double thresholding, and edge tracking by hysteresis.
+- [Thresholding (image processing)](https://en.wikipedia.org/wiki/Thresholding_(image_processing)) — classification of image responses by thresholds.
+- [Grayscale](https://en.wikipedia.org/wiki/Grayscale) — conversion from RGB to a single intensity channel.
+
+These resources provide background on the methods discussed in this article. A standalone technical-report PDF was not available in the inspected repository.
+
 </div>
