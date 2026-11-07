@@ -7,3 +7,6 @@
 
 /* Long equations scroll within the article instead of widening mobile pages. */
 mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:8px 0}
+
+/* Keep navigation on the right after removing the redundant wordmark. */
+.nav-links{margin-left:auto}
