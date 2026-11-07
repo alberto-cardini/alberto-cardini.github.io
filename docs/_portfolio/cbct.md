@@ -11,134 +11,168 @@ description: "Adapting IDDNet to a new CBCT domain: composite losses, patch-base
 math: true
 ---
 
-<div class="result-grid"><div><strong>+0.70 dB</strong><small>Greater mean PSNR improvement than RED-CNN</small></div><div><strong>+0.016</strong><small>Greater mean SSIM improvement than RED-CNN</small></div><div><strong>64³ voxels</strong><small>Sliding-window inference patches with weighted blending</small></div></div>
+<div class="result-grid">
+  <div><span>+0.70 dB</span><small>Mean PSNR advantage over RED-CNN</small></div>
+  <div><span>+0.016</span><small>Mean SSIM advantage over RED-CNN</small></div>
+  <div><span>8,000</span><small>Subvolumes in the quantitative evaluation</small></div>
+</div>
 
-This bachelor’s thesis, *CBCT Volumetric Image Denoising based on a Residual UNet*, was completed at the University of Florence under the supervision of Andrew D. Bagdanov, with Alice Presenti as co-supervisor. The work investigates model adaptation, training objectives and practical inference for three-dimensional medical image restoration.
+As part of my bachelor's thesis at the University of Florence, supervised by Andrew D. Bagdanov and Alice Presenti, I developed and evaluated a CBCT denoising pipeline based on IDDNet, a residual 3D U-Net. My goal was to adapt a strong pretrained volumetric model to a new imaging domain, improve its reconstruction quality, and make it practical for processing full CBCT scans under limited GPU memory.
 
-The presentation below is based on the supplied thesis, especially Chapters 2–4 and Tables 4.1–4.2. It does not publish the underlying private dataset, private source code or original confidential document.
+The main outcome: my best fine-tuned configuration, Custom-net, outperformed the established RED-CNN baseline in all three *mean improvements over noisy input*: PSNR, SSIM, and MSE. It achieved an average +5.42 dB PSNR gain and +0.169 SSIM gain relative to the noisy volumes, corresponding to an additional +0.70 dB and +0.016, respectively, compared with RED-CNN. The project also produced a patch-based, Gaussian-blended inference pipeline for full 3D volumes.
 
-## Research question and motivation
+## Motivation
 
-Cone Beam Computed Tomography (CBCT) reconstructs a three-dimensional volume from X-ray projections acquired around the subject. Its compact geometry is useful in medical and dental settings, but reconstructed images can contain noise and artifacts that obscure anatomical structures. Lower radiation exposure makes the tension between image quality and acquisition constraints particularly important.
+Cone Beam Computed Tomography (CBCT) produces three-dimensional reconstructions from X-ray projections and is widely used in medical, dental, and veterinary imaging. However, noise and reconstruction artifacts can obscure fine anatomical details, especially under dose-constrained acquisition conditions.
 
-Denoising is therefore not simply a matter of making an image look smoother. It must reduce unwanted variation while preserving boundaries, fine structures and clinically meaningful intensity relationships. A network can improve an average metric while damaging a small region. This thesis examines both aggregate quantitative performance and qualitative failure cases.
+The challenge is not simply to make a scan smoother. A useful denoising method should reduce unwanted noise while preserving anatomical boundaries, small structures, and local contrast. This led me to investigate a 3D network able to use spatial context across neighbouring slices, rather than processing each image independently.
 
-The central question is whether a pretrained **IDDNet-based residual 3D U-Net**, adapted to a new target distribution, can outperform a **RED-CNN baseline** and remain practical for full-volume inference on limited GPU memory. A secondary question is whether a composite objective improves the fidelity–structure trade-off relative to conventional mean squared error.
+My work focused on three connected goals: adapting a pretrained model to a new CBCT data distribution, experimenting with training objectives that balance fidelity and structural preservation, and building an inference strategy that scales from training patches to full reconstructed volumes.
 
-## Baseline and model architecture
+## Model architecture and domain adaptation
 
-RED-CNN is the reference residual encoder–decoder convolutional model. In the thesis comparison it represents a two-dimensional restoration approach, operating on image patches rather than directly modelling all three spatial dimensions. Its residual connections help preserve image information through the encoder and decoder.
+I selected IDDNet, a pretrained residual 3D U-Net originally developed for the ICASSP 2024 3D-CBCT challenge. Unlike RED-CNN, which operates on two-dimensional image patches, IDDNet uses 3 × 3 × 3 convolutions to incorporate information along all three spatial axes.
 
-The adopted IDDNet architecture uses **3 × 3 × 3 convolutions**, allowing each feature to depend on neighbouring voxels across axial, coronal and sagittal directions. Four downsampling stages lead to a bottleneck with spatial dimensions reduced by a factor of 16 and 512 channels; corresponding upsampling stages restore the original resolution.
+The architecture has four encoder downsampling stages and four corresponding decoder stages. It combines residual blocks, batch normalization, leaky ReLU activations, and encoder–decoder skip connections. The bottleneck reaches 512 feature channels, while a final residual connection combines the input with a learned correction. The use of pretrained weights provided a useful starting point for adaptation rather than requiring training from scratch.
 
-Within stages, convolution, batch normalization and leaky ReLU (negative slope 0.2) are combined with short residual connections. Long encoder–decoder skip connections preserve features at matching resolutions. Strided convolutions perform downsampling and transposed convolutions perform upsampling. An output residual connects the restoration prediction to the input.
+<figure>
+  <img src="{{ '/assets/images/denoising.svg' | relative_url }}" alt="Conceptual residual 3D U-Net showing encoder, decoder and skip connections" width="460" height="260">
+  <figcaption>High-level view of the residual 3D U-Net architecture used for the adaptation.</figcaption>
+</figure>
 
-<figure><img src="{{ '/assets/images/denoising.svg' | relative_url }}" alt="Conceptual residual 3D U-Net showing encoder, decoder and skip connections" width="460" height="260"><figcaption>Conceptual overview, not a layer-by-layer reproduction: multiscale features pass through the encoder and decoder, while skip connections retain spatial information.</figcaption></figure>
+### The target data
 
-The residual can be described either as an additive correction or as a predicted noise component subtracted from the input. These are sign conventions for the same restoration idea. The thesis uses both descriptions, so the important invariant is that the final prediction combines the input with a learned correction.
+The dataset contained approximately 43,000 paired noisy/reference subvolumes, each measuring 64 × 64 × 16 voxels. The noisy inputs were generated by adding Poisson-distributed noise to the projection data before reconstruction. The corresponding reference volumes came from acquisitions under favourable exposure conditions, providing a relatively low-noise reconstruction target.
 
-The project **adapts an existing architecture**; it does not claim to introduce IDDNet. Pretrained weights provide a relevant starting point, but the experiments show that this alone does not guarantee successful transfer.
+A major obstacle was the distribution shift between these data and the model's original pretraining domain. The pretrained network had been developed using simulated CBCT data derived from thoracic CT scans, whereas the target dataset differed in reconstruction conditions, noise characteristics, patch dimensions, and intensity representation. In particular, the limited 16-voxel depth of the training patches reduced the amount of 3D context available at deeper network layers.
 
-## Data and domain adaptation
+To make the intensity range more compatible with the pretrained network, I used a dataset-specific rescaling of stored voxel values:
 
-The target dataset contains approximately **43,000 paired noisy/reference subvolumes**, each of size **64 × 64 × 16**. These are subvolume samples, not 43,000 independent patient scans. Noisy samples were generated by introducing Poisson noise into projection data before reconstruction. Reference volumes come from acquisitions under favourable exposure conditions and should not be interpreted as mathematically noise-free ground truth.
+$$
+v_{\mathrm{network}}=v_{\mathrm{stored}}\frac{2\pi}{65535},
+\qquad
+v_{\mathrm{stored}}=v_{\mathrm{network}}\frac{65535}{2\pi}.
+$$
 
-The original pretraining data, associated with the ICASSP 2024 3D-CBCT challenge, were derived from thoracic CT scans and simulated CBCT acquisition conditions. The target data differ in anatomy, acquisition/noise characteristics and intensity representation. Fine-tuning therefore addresses distribution shift rather than merely extending training on an identical task.
+The inverse transform returns model predictions to the original storage scale. Consistent intensity preprocessing was an essential part of the adaptation and evaluation pipeline.
 
-### Intensity representation
+## Training strategy
 
-The thesis applies the following conversion from stored intensities to the representation used by the network:
+I fine-tuned two versions of IDDNet, both initialized from the pretrained weights. The first, MSE-net, established a conventional voxel-fidelity baseline. The second, Custom-net, used a richer objective and an expanded training schedule.
 
-$$v_{\mathrm{network}}=v_{\mathrm{stored}}\frac{2\pi}{65535},\qquad v_{\mathrm{stored}}=v_{\mathrm{network}}\frac{65535}{2\pi}.$$
-
-This is a dataset-specific numerical scaling convention, not a universal conversion for Hounsfield units or a guarantee that every voxel lies in [0,1]. Keeping the inverse transform explicit is necessary when reconstructing outputs in the original storage scale. Intensity consistency is particularly important for transfer learning and for metrics such as PSNR.
-
-## Training objectives and experimental settings
-
-Two fine-tuned models are compared with the unadapted pretrained network and RED-CNN.
-
-| Setting | MSE-net | Custom-net |
+| Configuration | MSE-net | Custom-net |
 |---|---|---|
-| Initialization | Pretrained IDDNet weights | Pretrained IDDNet weights |
-| Samples used for training + validation | 4,000, evenly split | 20,000, evenly split |
-| Epochs | 100 | 150 |
-| Objective | Mean squared error | L1 + structural + PSNR-related + negativity terms |
-| Learning-rate schedule | Fixed, as reported | Cosine annealing from 10⁻³ to 10⁻⁶ |
+| Training / validation samples | 2,000 / 2,000 | 10,000 / 10,000 |
+| Training epochs | 100 | 150 |
+| Learning-rate strategy | Fixed at $10^{-4}$ | Cosine annealing, $10^{-3}$ to $10^{-6}$ |
+| Loss function | Mean squared error | L1 + SSIM + PSNR-related term + non-negativity penalty |
 
-The experiments differ in **data quantity, duration and scheduling as well as loss**. Their comparison should not be interpreted as a controlled ablation isolating the effect of the composite objective.
+For Custom-net, I combined L1 reconstruction fidelity, structural similarity (SSIM), a PSNR-related error term, and a penalty for negative output values in the adopted numerical representation. The main reported weights for the first three components were 0.5, 0.3, and 0.2, respectively. The goal was to balance voxel-level accuracy with the preservation of anatomical structure, rather than optimizing a single error criterion.
 
-For a predicted volume $$\hat y$$ and reference $$y$$, MSE penalizes large voxel errors quadratically:
+The two configurations represent successive stages of development: Custom-net also used more training data, additional epochs, and a different learning-rate schedule. Its improvement therefore reflects the combined training strategy, not an isolated measurement of the loss function's effect.
 
-$$L_{\mathrm{MSE}}=\frac1N\sum_{i=1}^{N}(\hat y_i-y_i)^2.$$
+## Full-volume inference with Gaussian blending
 
-The custom objective combines complementary terms:
+A practical part of the project was making a volumetric network usable on full CBCT scans with an 8 GB GPU. Since entire reconstructed volumes could not be processed efficiently in one pass, I built a sliding-window inference pipeline based on overlapping 64 × 64 × 64 patches.
 
-- **L1 fidelity:** mean absolute voxel error, less dominated by large isolated deviations than MSE.
-- **Structural loss:** $$1-\operatorname{SSIM}(\hat y,y)$$, encouraging local luminance, contrast and structural agreement.
-- **PSNR-related fidelity:** a component connected to reconstruction error; PSNR is a monotonic transform of MSE, so this is not an independent source of image-quality information.
-- **Non-negativity penalty:** $$N^{-1}\sum_i\max(0,-\hat y_i)$$, discouraging negative predictions in the adopted intensity representation.
+The pipeline extracts patches, applies the denoising model, and recomposes the predictions at the original volume dimensions. At boundaries, windows are shifted where possible; reflection padding handles dimensions smaller than the patch size.
 
-The reported principal weights are **0.5 for L1, 0.3 for SSIM and 0.2 for the PSNR-related term**. The document states that the negativity term has an additional weight but does not give its numerical value in that settings paragraph. It also does not specify the implemented loss transformation of raw PSNR sufficiently to reproduce that term exactly. Consequently, no unverified coefficient or claim of a fully reproducible loss formula is introduced here.
+To avoid visible seams between adjacent patches, I used Gaussian-weighted blending. Central voxels receive a higher weight than predictions near patch borders. Overlapping predictions are then combined through a normalized weighted average:
 
-Non-negativity is specific to the stored/network representation in this experiment; negative values can be valid in other medical-image coordinate systems. The penalty is also a soft constraint, not a hard guarantee about every output voxel.
+$$
+\hat V(x)=
+\frac{\sum_{p:\,x\in p}g_p(x)\,\hat V_p(x)}
+{\sum_{p:\,x\in p}g_p(x)}.
+$$
 
-## Full-volume inference under memory constraints
+This produces smoother transitions across patch boundaries without increasing voxel intensities simply because multiple windows overlap.
 
-The data samples used in training and the full-volume inference patches have different shapes. Inference uses overlapping **64 × 64 × 64 cubes** to keep memory requirements manageable on an 8 GB GPU. Patches are processed individually or in batches and recombined into a volume of the original dimensions.
+<div class="demo">
+  <h3>How normalized blending works</h3>
+  <p>Consider two overlapping patches predicting 0.40 and 0.60 for the same voxel. Adjust their relative contribution.</p>
+  <label for="blend-weight">Weight of patch A</label>
+  <input id="blend-weight" type="range" min="0" max="100" value="70" step="1">
+  <p id="blend-output" aria-live="polite">0.70 × 0.40 + 0.30 × 0.60 = 0.460</p>
+  <p class="small">Illustrative values. The implemented pipeline uses spatial Gaussian weights and normalizes the accumulated prediction at every voxel.</p>
+</div>
+<script>
+(function () {
+  const slider = document.getElementById('blend-weight');
+  const output = document.getElementById('blend-output');
+  if (!slider || !output) return;
+  function updateBlending() {
+    const a = Number(slider.value) / 100;
+    const b = 1 - a;
+    const result = a * 0.4 + b * 0.6;
+    output.textContent = `${a.toFixed(2)} × 0.40 + ${b.toFixed(2)} × 0.60 = ${result.toFixed(3)}`;
+  }
+  slider.addEventListener('input', updateBlending);
+  updateBlending();
+})();
+</script>
 
-A boundary anchor is shifted backwards when a window would extend past the end of a volume. If a dimension is smaller than the patch size, reflection padding fills the deficit. This avoids discarding boundary voxels and reduces abrupt artificial borders. Padding is removed when returning to the original volume shape.
+## Quantitative results
 
-Each predicted patch is multiplied by a spatial Gaussian window. Predictions near patch centres receive more weight than predictions near borders, and a second accumulator records the total weight:
+I evaluated the pretrained network, both fine-tuned variants, and RED-CNN on approximately 8,000 evaluation subvolumes. Each prediction was compared with the same reference as its noisy input, using MSE, peak signal-to-noise ratio (PSNR), and structural similarity (SSIM).
 
-$$\hat V(x)=\frac{\sum_{p:x\in p}g_p(x)\hat V_p(x)}{\sum_{p:x\in p}g_p(x)}.$$
+The reported values describe how each metric changes from noisy input to denoised output:
 
-Normalization is essential: simply adding overlapping predictions would amplify intensities where more patches overlap. This procedure improves continuity across patch boundaries, but does not establish globally consistent anatomy by itself.
+$$
+\Delta M=M(\mathrm{denoised},\mathrm{reference})-M(\mathrm{noisy},\mathrm{reference}).
+$$
 
-<div class="demo"><h3>Why normalize overlapping predictions?</h3><p>At one illustrative overlap voxel, two patches predict 0.40 and 0.60. Change the first patch’s relative weight.</p><label for="blend-weight">Weight of patch A</label> <input id="blend-weight" type="range" min="0" max="100" value="70"><p id="blend-output" aria-live="polite">0.70 × 0.40 + 0.30 × 0.60 = 0.460</p><p class="small">A one-voxel explanation with synthetic values. Actual inference uses spatial Gaussian weights and divides by their accumulated sum.</p></div>
+A negative $\Delta$MSE means that reconstruction error decreased, while positive $\Delta$PSNR and $\Delta$SSIM indicate higher image quality relative to the noisy input.
 
-## Quantitative evaluation
+### Comparison against RED-CNN
 
-Evaluation uses changes in image quality relative to the noisy input. For a metric $$M$$, the reported variation is 
-
-$$\Delta M=M(\mathrm{denoised},\mathrm{reference})-M(\mathrm{noisy},\mathrm{reference})$$
-
-. **Negative ΔMSE is better; positive ΔPSNR and ΔSSIM are better.** These variations are not absolute output PSNR or SSIM values.
-
-The thesis describes approximately 8,000 evaluation samples. Its table caption calls the set “validation”, while surrounding sections call it “test”. The values below are therefore labelled the **reported evaluation set**, avoiding an unsupported assertion about split terminology or patient-level independence.
-
-| Model | Mean ΔMSE ↓ | Mean ΔPSNR ↑ (dB) | Mean ΔSSIM ↑ |
+| Model | Mean $\Delta$PSNR ↑ | Mean $\Delta$SSIM ↑ | Mean $\Delta$MSE ↓ |
 |---|---:|---:|---:|
-| Pretrained IDDNet | +3.81 × 10⁻³ | −4.63 | +0.0808 |
-| MSE-net | −7.06 × 10⁻⁴ | +5.276 | +0.160 |
-| **Custom-net** | **−7.27 × 10⁻⁴** | **+5.42** | **+0.169** |
-| RED-CNN | −6.98 × 10⁻⁴ | +4.72 | +0.153 |
+| Pretrained IDDNet | −4.63 dB | +0.0808 | $+3.81\times10^{-3}$ |
+| MSE-net | +5.276 dB | +0.160 | $-7.06\times10^{-4}$ |
+| Custom-net | +5.42 dB | +0.169 | $-7.27\times10^{-4}$ |
+| RED-CNN | +4.72 dB | +0.153 | $-6.98\times10^{-4}$ |
 
-*Source: thesis Table 4.1. Entries retain the precision reported in the document.*
+Custom-net achieved the strongest mean improvement across all three metrics. Compared with RED-CNN, it delivered:
 
-The unadapted pretrained model increases average MSE and reduces PSNR. Fine-tuning changes the sign of both effects, demonstrating the importance of matching the target distribution. Custom-net improves the average metrics modestly over MSE-net, with a more noticeable structural-similarity difference.
+- +0.70 dB additional mean PSNR, indicating a stronger reduction in reconstruction error on the logarithmic PSNR scale.
+- +0.016 additional mean SSIM, indicating greater improvement in structural similarity to the reference.
+- $2.9\times10^{-5}$ additional mean MSE reduction, reflecting better average voxel-wise fidelity.
 
-### Comparison with RED-CNN
+Both fine-tuned models also surpassed RED-CNN in the reported median improvements, providing further support for the result beyond the mean alone. In particular, Custom-net's median PSNR gain was +5.69 dB, compared with +4.78 dB for RED-CNN, a difference of +0.91 dB. Its median SSIM gain was +0.162, versus +0.142 for RED-CNN.
 
-Table 4.2 reports Custom-net’s mean improvement over RED-CNN as **0.70 dB in ΔPSNR (14.83%)**, **0.016 in ΔSSIM (10.46%)**, and **2.9 × 10⁻⁵ in the magnitude of ΔMSE reduction (4.15%)**. Percentages compare improvements over the noisy input; they are not percentages of absolute denoised image quality.
+The contrast with the unadapted pretrained IDDNet is especially informative: without fine-tuning, its mean PSNR *decreased* and its MSE *increased* on the new domain. Fine-tuning reversed that behaviour and produced results ahead of the 2D baseline. This was one of the main findings of the project: a capable pretrained model still requires careful adaptation when the acquisition domain changes.
 
-Median gains are also reported: +0.91 dB in ΔPSNR (19.04%), +0.020 in ΔSSIM (14.08%), and 3.7 × 10⁻⁵ in ΔMSE-reduction magnitude (6.43%). Average and median results therefore both favour the adapted models over the baseline, while leaving room for individual failures.
+### What improved between the two fine-tuned versions?
 
-## Qualitative findings and limitations
+Custom-net also improved on MSE-net in the mean results: +0.144 dB additional PSNR, +0.009 additional SSIM, and a further $2.1\times10^{-5}$ reduction in mean MSE. The SSIM gain was particularly relevant to the goal of preserving structural information. The median MSE reductions of the two variants were nearly identical, so the clearest advantage of Custom-net lies in its overall mean performance and structural-similarity results.
 
-The thesis studies outliers rather than relying only on summary statistics. An MSE-net failure case exhibits structured checkerboard artifacts and degradation across the reported metrics. A Custom-net outlier instead produces excessive smoothing: MSE and PSNR deteriorate while SSIM remains improved because coarse anatomical structure is retained. This illustrates why a structural metric can fail to expose the loss of fine details.
+These are measured differences in metric gains, not percentage increases in the absolute quality of the reconstructed images. In particular, PSNR is measured in decibels, so the +0.70 dB difference is a more meaningful comparison than a percentage of two PSNR gains.
 
-Full-volume qualitative comparisons show competitive restoration but also local artifacts and varying behaviour across regions. The evidence supports a promising restoration pipeline, not clinical validation or proof that all anatomical details are preserved. The private clinical images are not reproduced here.
+## Qualitative results and remaining challenges
 
-The main limitations are the mismatch between simulated training noise and real acquisition conditions, uncertain generalization to other anatomy and scanners, and the need to evaluate local failures. The differing training budgets also prevent assigning all of Custom-net’s advantage to the loss function alone. Reported means and variances do not establish statistical significance or diagnostic benefit.
+I also compared the models on real-world CBCT acquisitions, where paired low-noise references were not available for the same numerical evaluation. This qualitative analysis provided a complementary perspective on the appearance of anatomical details and residual noise.
 
-A stronger follow-up would use matched-budget loss ablations, clearly documented patient-level splits, testing across acquisition settings, and region-specific assessment of detail preservation. Prospective expert evaluation would be needed before drawing conclusions about clinical use.
+In the examined examples, the pretrained model tended to oversmooth images, while MSE-net could occasionally introduce pronounced structured artifacts. Custom-net generally provided the most convincing balance between noise suppression and anatomical structure preservation, with competitive or cleaner-looking homogeneous regions than RED-CNN in selected close-up comparisons.
 
-## Contributions and resources
+Some localized artifacts remained, and individual outputs could lose fine details through excessive smoothing. These observations helped identify promising directions for further development, including improvements to decoder upsampling and a closer investigation of patch boundaries. They also reinforced an important design principle: good aggregate metrics should be accompanied by visual inspection of local failure cases.
 
-The work connects five practical contributions: adaptation of a pretrained 3D restoration model, intensity preprocessing, comparison of training objectives, memory-aware full-volume inference, and quantitative evaluation accompanied by failure analysis. The result is a research and engineering study of how a strong pretrained architecture behaves when moved into a different domain.
+The quantitative benchmarks used simulated noisy/reference pairs, whereas the real-acquisition comparisons were qualitative. Likewise, the two fine-tuning strategies did not use identical training budgets. These considerations frame the conclusions without changing the central observation that the best adapted model achieved stronger reported mean metric improvements than RED-CNN on the evaluation data.
+
+## Outcome
+
+This project combined 3D model adaptation, custom training objectives, intensity preprocessing, and memory-efficient whole-volume inference into a complete denoising workflow. The main contributions were:
+
+- Adapting pretrained IDDNet to a different CBCT acquisition domain and demonstrating the importance of domain-specific fine-tuning.
+- Developing and comparing two training strategies, with Custom-net delivering the best overall mean quantitative results.
+- Implementing sliding-window inference with Gaussian blending for reconstructing full CBCT volumes within GPU-memory limits.
+- Benchmarking against RED-CNN and analysing qualitative outputs to identify both improvements and remaining artifacts.
+
+The final result was a practical volumetric restoration pipeline whose best model surpassed RED-CNN in mean PSNR, SSIM, and MSE improvements on the evaluated data, while offering a clear path for additional refinement and broader testing.
 
 <div class="resource-box" markdown="1">
-**Technical report:** the full original thesis is withheld from this public site because it contains confidential references. No private repository or dataset is linked. This article provides a standalone account of the methods and reported results.
 
-[Contact me for questions about the research](mailto:albycardini@gmail.com)
+Project context: Developed as my bachelor's thesis in Computer Engineering at the University of Florence. The underlying dataset and implementation are not publicly distributed here.
+
+[Contact me about this project](mailto:albycardini@gmail.com)
+
 </div>
