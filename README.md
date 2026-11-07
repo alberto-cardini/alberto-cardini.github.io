@@ -10,6 +10,3 @@ GitHub Pages source: `main`, `/docs`. There is deliberately no `.nojekyll`. `doc
 
 ## Local development
 With Ruby and Bundler installed: `cd docs && bundle install && bundle exec jekyll serve`. GitHub Pages uses its managed Jekyll builder. Run `python3 scripts/validate.py docs/_site` after a local build. Interactive algorithms can be checked with `node scripts/test-viterbi.cjs`.
-
-## Source policy
-Project text is based on public repositories and the author-supplied CV and thesis. Original private thesis/CV files and private implementation materials are not published. Public PPM figures are copied from its source repository, EduMeter screenshots are explicitly identified as mockups, and the POS demo uses an explicitly labeled illustrative model. Documentation links distinguish PDF reports, LaTeX source reports, and repository documentation.
